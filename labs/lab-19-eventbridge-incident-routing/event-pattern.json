@@ -1,0 +1,8 @@
+{
+  "source": ["aws.cloudwatch", "aws.ec2", "aws.config"],
+  "detail-type": [
+    "CloudWatch Alarm State Change",
+    "EC2 Instance State-change Notification",
+    "Config Rules Compliance Change"
+  ]
+}

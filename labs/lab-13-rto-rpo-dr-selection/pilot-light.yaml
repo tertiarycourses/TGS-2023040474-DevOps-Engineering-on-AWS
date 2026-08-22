@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lab 13 - Pilot-light DR skeleton (minimal VPC + scaled-to-zero app tier) for the DR Region.
+Parameters:
+  EnvName: { Type: String, Default: dr }
+  DrVpcCidr: { Type: String, Default: 10.90.0.0/16 }
+  LatestAmi:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref DrVpcCidr
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags: [ { Key: Name, Value: !Sub '${EnvName}-vpc' } ]
+  SubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: !Select [ 0, !Cidr [ !Ref DrVpcCidr, 4, 8 ] ]
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+  SubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: !Select [ 1, !Cidr [ !Ref DrVpcCidr, 4, 8 ] ]
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+  LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: !Sub '${EnvName}-lt'
+      LaunchTemplateData:
+        InstanceType: t3.micro
+        ImageId: !Ref LatestAmi
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            dnf install -y httpd
+            echo "DR OK from $(hostname)" > /var/www/html/index.html
+            systemctl enable --now httpd
+  Asg:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: !Sub '${EnvName}-pilot-asg'
+      MinSize: '0'
+      MaxSize: '6'
+      DesiredCapacity: '0'
+      VPCZoneIdentifier: [ !Ref SubnetA, !Ref SubnetB ]
+      LaunchTemplate:
+        LaunchTemplateId: !Ref LaunchTemplate
+        Version: !GetAtt LaunchTemplate.LatestVersionNumber
+Outputs:
+  DrVpcId: { Value: !Ref Vpc }
+  DrAsgName: { Value: !Ref Asg }

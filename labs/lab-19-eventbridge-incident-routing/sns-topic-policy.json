@@ -1,0 +1,12 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowEventBridgePublish",
+      "Effect": "Allow",
+      "Principal": { "Service": "events.amazonaws.com" },
+      "Action": "sns:Publish",
+      "Resource": "arn:aws:sns:ap-southeast-1:<your-account-id>:devops-incidents"
+    }
+  ]
+}

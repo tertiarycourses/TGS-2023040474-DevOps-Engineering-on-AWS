@@ -1,0 +1,12 @@
+{
+  "AutoScalingGroupName": "devops-ha-asg",
+  "PolicyName": "cpu-target-tracking-50",
+  "PolicyType": "TargetTrackingScaling",
+  "TargetTrackingConfiguration": {
+    "PredefinedMetricSpecification": {
+      "PredefinedMetricType": "ASGAverageCPUUtilization"
+    },
+    "TargetValue": 50.0,
+    "DisableScaleIn": false
+  }
+}

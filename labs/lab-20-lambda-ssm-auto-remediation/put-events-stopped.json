@@ -1,0 +1,8 @@
+[
+  {
+    "Source": "aws.ec2",
+    "DetailType": "EC2 Instance State-change Notification",
+    "Detail": "{\"instance-id\":\"<instance-id>\",\"state\":\"stopped\"}",
+    "EventBusName": "default"
+  }
+]

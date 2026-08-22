@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Lab 8 - v2 of the app stack. Adds a CostCenter tag and narrows SSH ingress to a
+  corporate CIDR. Used to demonstrate change-set previews before execution.
+Parameters:
+  EnvName:      { Type: String, Default: dev }
+  InstanceSize: { Type: String, Default: medium, AllowedValues: [small, medium] }
+  DeployMode:   { Type: String, Default: single, AllowedValues: [single, asg] }
+  AdminCidr:    { Type: String, Default: 203.0.113.0/24, Description: Corporate CIDR allowed to SSH. }
+  LatestAmi:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+Mappings:
+  SizeToType:
+    small:  { Type: t3.small }
+    medium: { Type: t3.medium }
+Conditions:
+  IsSingle: !Equals [!Ref DeployMode, single]
+Resources:
+  AppSg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub 'HTTP + restricted SSH for ${EnvName} app'
+      VpcId: !ImportValue { 'Fn::Sub': '${EnvName}-VpcId' }
+      SecurityGroupIngress:
+        - { IpProtocol: tcp, FromPort: 80, ToPort: 80, CidrIp: 0.0.0.0/0, Description: HTTP }
+        - { IpProtocol: tcp, FromPort: 22, ToPort: 22, CidrIp: !Ref AdminCidr, Description: SSH from corp }
+      Tags:
+        - { Key: Name, Value: !Sub '${EnvName}-app-sg' }
+        - { Key: CostCenter, Value: devops-training }
+  AppInstance:
+    Type: AWS::EC2::Instance
+    Condition: IsSingle
+    Properties:
+      InstanceType: !FindInMap [SizeToType, !Ref InstanceSize, Type]
+      ImageId: !Ref LatestAmi
+      SubnetId: !ImportValue { 'Fn::Sub': '${EnvName}-PublicSubnetAId' }
+      SecurityGroupIds: [!Ref AppSg]
+      Tags:
+        - { Key: Name, Value: !Sub '${EnvName}-app' }
+        - { Key: CostCenter, Value: devops-training }
+Outputs:
+  SecurityGroupId: { Value: !Ref AppSg }

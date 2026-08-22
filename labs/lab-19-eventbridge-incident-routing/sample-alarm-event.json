@@ -1,0 +1,15 @@
+{
+  "version": "0",
+  "id": "00000000-0000-0000-0000-000000000001",
+  "detail-type": "CloudWatch Alarm State Change",
+  "source": "aws.cloudwatch",
+  "account": "<your-account-id>",
+  "time": "2026-08-23T09:00:00Z",
+  "region": "ap-southeast-1",
+  "resources": ["arn:aws:cloudwatch:ap-southeast-1:<your-account-id>:alarm:devops-app-errors"],
+  "detail": {
+    "alarmName": "devops-app-errors",
+    "state": { "value": "ALARM", "reason": "Threshold Crossed" },
+    "previousState": { "value": "OK" }
+  }
+}

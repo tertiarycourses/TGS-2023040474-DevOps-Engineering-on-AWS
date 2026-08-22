@@ -1,0 +1,27 @@
+# CloudWatch Logs Insights queries for /devops/app
+# Paste any of these into the Logs Insights editor (select the /devops/app log group).
+
+# 1) Slowest requests (top 20 by latency)
+fields @timestamp, path, status, latency_ms
+| sort latency_ms desc
+| limit 20
+
+# 2) Errors grouped by request path (most error-prone endpoints first)
+filter level = "ERROR"
+| stats count(*) as errors by path
+| sort errors desc
+
+# 3) p90 latency and request count per 5-minute bin
+stats pct(latency_ms, 90) as p90, count(*) as reqs by bin(5m)
+| sort bin(5m) asc
+
+# 4) Error rate over the window
+stats
+  sum(level = "ERROR") as errors,
+  count(*) as total,
+  (errors * 100.0 / total) as error_pct
+
+# 5) Slowest path on average (candidate for optimisation)
+stats avg(latency_ms) as avg_ms, count(*) as reqs by path
+| sort avg_ms desc
+| limit 10

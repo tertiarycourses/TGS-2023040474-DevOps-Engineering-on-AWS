@@ -1,0 +1,16 @@
+{
+  "Role": "arn:aws:iam::<account-id>:role/devops-s3-replication-role",
+  "Rules": [
+    {
+      "ID": "app-data-crr",
+      "Status": "Enabled",
+      "Priority": 1,
+      "Filter": {},
+      "DeleteMarkerReplication": { "Status": "Disabled" },
+      "Destination": {
+        "Bucket": "arn:aws:s3:::devops-app-data-dr-<account-id>",
+        "StorageClass": "STANDARD_IA"
+      }
+    }
+  ]
+}

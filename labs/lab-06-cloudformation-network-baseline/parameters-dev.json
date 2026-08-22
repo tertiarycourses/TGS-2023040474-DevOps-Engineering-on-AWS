@@ -1,0 +1,4 @@
+[
+  { "ParameterKey": "EnvName", "ParameterValue": "dev" },
+  { "ParameterKey": "VpcCidr", "ParameterValue": "10.20.0.0/16" }
+]

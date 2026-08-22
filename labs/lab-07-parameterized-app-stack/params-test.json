@@ -1,0 +1,5 @@
+[
+  { "ParameterKey": "EnvName",      "ParameterValue": "test" },
+  { "ParameterKey": "InstanceSize", "ParameterValue": "medium" },
+  { "ParameterKey": "DeployMode",   "ParameterValue": "asg" }
+]

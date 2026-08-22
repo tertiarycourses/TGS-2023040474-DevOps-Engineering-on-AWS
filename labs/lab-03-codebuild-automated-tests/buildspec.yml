@@ -1,0 +1,23 @@
+version: 0.2
+# Lab 3 - CodeBuild build specification: install deps, lint, then run pytest.
+env:
+  variables:
+    APP_NAME: "devops-sample-app"
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - echo "Installing dependencies..."
+      - pip install -r requirements.txt
+  pre_build:
+    commands:
+      - echo "Linting..."
+      - python -m pyflakes app tests
+  build:
+    commands:
+      - echo "Running unit tests..."
+      - python -m pytest -q            # a failing test here FAILS the build
+  post_build:
+    commands:
+      - echo "Tests complete."

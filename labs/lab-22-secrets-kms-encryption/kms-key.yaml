@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lab 22 - customer-managed KMS key with a least-privilege key policy and rotation.
+Resources:
+  AppKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: Customer-managed key for the DevOps sample app data and secrets
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowAccountAdmin
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: AllowAppRoleUseOfKey
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:role/devops-app-role'
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey
+              - kms:DescribeKey
+            Resource: '*'
+  AppKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/devops-app
+      TargetKeyId: !Ref AppKey
+Outputs:
+  KeyId:
+    Value: !Ref AppKey
+  KeyArn:
+    Value: !GetAtt AppKey.Arn

@@ -1,0 +1,33 @@
+{
+  "description": "Stop an instance in devops-ha-asg to verify the ALB routes around failure and the ASG self-heals.",
+  "roleArn": "arn:aws:iam::<account-id>:role/devops-fis-role",
+  "stopConditions": [
+    {
+      "source": "aws:cloudwatch:alarm",
+      "value": "arn:aws:cloudwatch:ap-southeast-1:<account-id>:alarm:devops-ha-5xx-guard"
+    }
+  ],
+  "targets": {
+    "haInstances": {
+      "resourceType": "aws:ec2:instance",
+      "resourceTags": {
+        "aws:autoscaling:groupName": "devops-ha-asg"
+      },
+      "selectionMode": "COUNT(1)"
+    }
+  },
+  "actions": {
+    "stopOneInstance": {
+      "actionId": "aws:ec2:stop-instances",
+      "parameters": {
+        "startInstancesAfterDuration": "PT5M"
+      },
+      "targets": {
+        "Instances": "haInstances"
+      }
+    }
+  },
+  "tags": {
+    "Name": "devops-ha-stop-instances"
+  }
+}

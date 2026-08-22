@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+.DS_Store
+assessment/
+reference/
+.claude/
+.agents/
+__pycache__/
+*.pyc
+courseware/archive/
+courseware/assets/
+qa/
+build/
+tmp/

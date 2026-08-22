@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lab 24 - AWS Config managed rules (compliance guardrails).
+Resources:
+  S3PublicReadProhibited:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: s3-bucket-public-read-prohibited
+      Source: { Owner: AWS, SourceIdentifier: S3_BUCKET_PUBLIC_READ_PROHIBITED }
+  EncryptedVolumes:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: encrypted-volumes
+      Source: { Owner: AWS, SourceIdentifier: ENCRYPTED_VOLUMES }
+  IamUserNoPoliciesCheck:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: iam-user-no-policies-check
+      Source: { Owner: AWS, SourceIdentifier: IAM_USER_NO_POLICIES_CHECK }

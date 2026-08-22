@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lab 14 - AWS Backup plan with a daily rule and a tag-based resource selection.
+Resources:
+  BackupRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: devops-backup-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: backup.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup
+        - arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores
+  BackupPlan:
+    Type: AWS::Backup::BackupPlan
+    Properties:
+      BackupPlan:
+        BackupPlanName: devops-daily-plan
+        BackupPlanRule:
+          - RuleName: daily-35d
+            TargetBackupVault: devops-vault
+            ScheduleExpression: cron(0 17 * * ? *)
+            StartWindowMinutes: 60
+            CompletionWindowMinutes: 180
+            Lifecycle:
+              DeleteAfterDays: 35
+  BackupSelection:
+    Type: AWS::Backup::BackupSelection
+    Properties:
+      BackupPlanId: !Ref BackupPlan
+      BackupSelection:
+        SelectionName: tag-backup-daily
+        IamRoleArn: !GetAtt BackupRole.Arn
+        ListOfTags:
+          - ConditionType: STRINGEQUALS
+            ConditionKey: backup
+            ConditionValue: daily
+Outputs:
+  BackupPlanId: { Value: !Ref BackupPlan }
+  SelectionId: { Value: !Ref BackupSelection }
+  BackupRoleArn: { Value: !GetAtt BackupRole.Arn }

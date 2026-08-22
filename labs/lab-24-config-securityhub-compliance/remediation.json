@@ -1,0 +1,16 @@
+{
+  "ConfigRuleName": "s3-bucket-public-read-prohibited",
+  "TargetType": "SSM_DOCUMENT",
+  "TargetId": "AWS-DisableS3BucketPublicReadWrite",
+  "Automatic": true,
+  "MaximumAutomaticAttempts": 3,
+  "RetryAttemptSeconds": 60,
+  "Parameters": {
+    "AutomationAssumeRole": {
+      "StaticValue": { "Values": ["arn:aws:iam::<your-account-id>:role/devops-config-remediation"] }
+    },
+    "S3BucketName": {
+      "ResourceValue": { "Value": "RESOURCE_ID" }
+    }
+  }
+}

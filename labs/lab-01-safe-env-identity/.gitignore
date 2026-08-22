@@ -1,0 +1,17 @@
+# Lab 1 - never commit secrets, credentials or local state.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+.aws/
+aws-credentials*
+credentials
+id_rsa*
+*.tfstate
+*.tfstate.*
+__pycache__/
+*.pyc
+.DS_Store
+node_modules/

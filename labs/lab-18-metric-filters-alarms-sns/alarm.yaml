@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lab 18 - CloudWatch alarms on high error rate and high CPU, notifying SNS.
+Parameters:
+  TopicName:
+    Type: String
+    Default: devops-alerts
+Resources:
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Ref TopicName
+  ErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: devops-app-errors
+      AlarmDescription: More than 5 application ERROR log lines in a minute.
+      Namespace: DevOps/App
+      MetricName: AppErrorCount
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [ !Ref AlertTopic ]
+      OKActions: [ !Ref AlertTopic ]
+  CpuAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: devops-high-cpu
+      AlarmDescription: Average CPU above 80% for two consecutive 5-minute periods.
+      Namespace: AWS/EC2
+      MetricName: CPUUtilization
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [ !Ref AlertTopic ]
+      OKActions: [ !Ref AlertTopic ]
+Outputs:
+  TopicArn:
+    Value: !Ref AlertTopic

@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Lab 10 - detective guardrail deployed to every account in an OU across regions
+  via a service-managed CloudFormation StackSet. Creates an AWS Config managed
+  rule (public S3 read prohibited) and an SNS topic for compliance alerts.
+Parameters:
+  NotifyEmail:
+    Type: String
+    Default: security@example.com
+    Description: Email to notify on guardrail events (placeholder - override per org).
+Resources:
+  ComplianceTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: org-guardrail-alerts
+      Tags: [{ Key: Purpose, Value: guardrail }]
+  ComplianceSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref ComplianceTopic
+      Protocol: email
+      Endpoint: !Ref NotifyEmail
+  PublicReadProhibited:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: s3-bucket-public-read-prohibited
+      Description: Detective guardrail - flags S3 buckets that allow public read.
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_PUBLIC_READ_PROHIBITED
+      Scope:
+        ComplianceResourceTypes: [ 'AWS::S3::Bucket' ]
+Outputs:
+  TopicArn: { Value: !Ref ComplianceTopic }
+  RuleName: { Value: !Ref PublicReadProhibited }

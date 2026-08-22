@@ -1,0 +1,14 @@
+{
+  "Name": "devops-incident",
+  "Description": "Route CloudWatch alarm / EC2 state-change / Config compliance incidents to notify + audit targets.",
+  "State": "ENABLED",
+  "EventBusName": "default",
+  "EventPattern": {
+    "source": ["aws.cloudwatch", "aws.ec2", "aws.config"],
+    "detail-type": [
+      "CloudWatch Alarm State Change",
+      "EC2 Instance State-change Notification",
+      "Config Rules Compliance Change"
+    ]
+  }
+}

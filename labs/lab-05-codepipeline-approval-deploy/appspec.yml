@@ -1,0 +1,23 @@
+version: 0.0
+# Lab 5 - CodeDeploy application specification (EC2/on-prem, in-place or blue/green).
+os: linux
+files:
+  - source: /
+    destination: /var/www/devops-sample-app
+hooks:
+  BeforeInstall:
+    - location: scripts/stop_server.sh
+      timeout: 60
+      runas: root
+  AfterInstall:
+    - location: scripts/install_deps.sh
+      timeout: 120
+      runas: root
+  ApplicationStart:
+    - location: scripts/start_server.sh
+      timeout: 60
+      runas: root
+  ValidateService:
+    - location: scripts/health_check.sh
+      timeout: 60
+      runas: root

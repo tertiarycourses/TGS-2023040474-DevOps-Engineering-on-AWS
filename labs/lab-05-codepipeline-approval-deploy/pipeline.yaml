@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Lab 5 - pipeline foundation: encrypted artifact bucket, CodeBuild project,
+  CodeDeploy application and least-privilege roles. Placeholders only.
+Parameters:
+  ConnectionArn:
+    Type: String
+    Description: AVAILABLE CodeConnections ARN from Lab 2.
+Resources:
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+  BuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: devops-cicd-build
+      ServiceRole: !GetAtt BuildRole.Arn
+      Artifacts: { Type: CODEPIPELINE }
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+      Source: { Type: CODEPIPELINE, BuildSpec: buildspec.yml }
+  DeployApp:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: devops-sample-app
+      ComputePlatform: Server
+  BuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: codebuild.amazonaws.com }
+            Action: sts:AssumeRole
+      # Attach a least-privilege policy: logs + read source + write to ArtifactBucket only.
+  # NOTE: PipelineRole, DeployRole and the Pipeline resource are declared in the full
+  # template. Scope every role to least privilege.
+Outputs:
+  ArtifactBucketName: { Value: !Ref ArtifactBucket }
+  DeployApplication:  { Value: !Ref DeployApp }

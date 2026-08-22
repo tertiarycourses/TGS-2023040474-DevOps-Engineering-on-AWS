@@ -1,0 +1,65 @@
+{
+  "pipeline": {
+    "name": "devops-cicd-pipeline",
+    "roleArn": "arn:aws:iam::<your-account-id>:role/devops-pipeline-role",
+    "pipelineType": "V2",
+    "artifactStore": {
+      "type": "S3",
+      "location": "devops-cicd-artifacts-<your-account-id>"
+    },
+    "stages": [
+      {
+        "name": "Source",
+        "actions": [
+          {
+            "name": "Source",
+            "actionTypeId": { "category": "Source", "owner": "AWS", "provider": "CodeStarSourceConnection", "version": "1" },
+            "configuration": {
+              "ConnectionArn": "<connection-arn>",
+              "FullRepositoryId": "<your-gh-user>/devops-sample-app",
+              "BranchName": "main",
+              "DetectChanges": "true"
+            },
+            "outputArtifacts": [ { "name": "SourceOutput" } ]
+          }
+        ]
+      },
+      {
+        "name": "Build",
+        "actions": [
+          {
+            "name": "Build",
+            "actionTypeId": { "category": "Build", "owner": "AWS", "provider": "CodeBuild", "version": "1" },
+            "configuration": { "ProjectName": "devops-cicd-build" },
+            "inputArtifacts": [ { "name": "SourceOutput" } ],
+            "outputArtifacts": [ { "name": "BuildOutput" } ]
+          }
+        ]
+      },
+      {
+        "name": "Approve",
+        "actions": [
+          {
+            "name": "ManualApproval",
+            "actionTypeId": { "category": "Approval", "owner": "AWS", "provider": "Manual", "version": "1" },
+            "configuration": { "CustomData": "Approve to deploy to the target environment." }
+          }
+        ]
+      },
+      {
+        "name": "Deploy",
+        "actions": [
+          {
+            "name": "Deploy",
+            "actionTypeId": { "category": "Deploy", "owner": "AWS", "provider": "CodeDeploy", "version": "1" },
+            "configuration": {
+              "ApplicationName": "devops-sample-app",
+              "DeploymentGroupName": "devops-dg"
+            },
+            "inputArtifacts": [ { "name": "BuildOutput" } ]
+          }
+        ]
+      }
+    ]
+  }
+}

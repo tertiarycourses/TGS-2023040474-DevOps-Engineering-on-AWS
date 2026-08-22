@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Lab 7 - parameterized application stack that imports the network baseline
+  exports (Lab 6), resolves the latest AMI via SSM, and deploys either a single
+  EC2 instance or an Auto Scaling group depending on parameters.
+Parameters:
+  EnvName:
+    Type: String
+    Default: dev
+    Description: Which network baseline exports to import (dev or test).
+  InstanceSize:
+    Type: String
+    Default: small
+    AllowedValues: [small, medium]
+    Description: Logical size mapped to a concrete instance type.
+  DeployMode:
+    Type: String
+    Default: single
+    AllowedValues: [single, asg]
+    Description: single = one EC2 instance; asg = Auto Scaling group across 2 AZs.
+  LatestAmi:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+Mappings:
+  SizeToType:
+    small:  { Type: t3.small }
+    medium: { Type: t3.medium }
+Conditions:
+  IsSingle: !Equals [!Ref DeployMode, single]
+  IsAsg:    !Equals [!Ref DeployMode, asg]
+Resources:
+  AppSg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub 'HTTP access for ${EnvName} app'
+      VpcId: !ImportValue { 'Fn::Sub': '${EnvName}-VpcId' }
+      SecurityGroupIngress:
+        - { IpProtocol: tcp, FromPort: 80, ToPort: 80, CidrIp: 0.0.0.0/0, Description: HTTP }
+      Tags: [{ Key: Name, Value: !Sub '${EnvName}-app-sg' }]
+  AppInstance:
+    Type: AWS::EC2::Instance
+    Condition: IsSingle
+    Properties:
+      InstanceType: !FindInMap [SizeToType, !Ref InstanceSize, Type]
+      ImageId: !Ref LatestAmi
+      SubnetId: !ImportValue { 'Fn::Sub': '${EnvName}-PublicSubnetAId' }
+      SecurityGroupIds: [!Ref AppSg]
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          dnf install -y httpd
+          echo "OK from $(hostname)" > /var/www/html/index.html
+          systemctl enable --now httpd
+      Tags: [{ Key: Name, Value: !Sub '${EnvName}-app' }]
+  AppLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Condition: IsAsg
+    Properties:
+      LaunchTemplateName: !Sub '${EnvName}-app-lt'
+      LaunchTemplateData:
+        InstanceType: !FindInMap [SizeToType, !Ref InstanceSize, Type]
+        ImageId: !Ref LatestAmi
+        SecurityGroupIds: [!Ref AppSg]
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            dnf install -y httpd
+            echo "OK from $(hostname)" > /var/www/html/index.html
+            systemctl enable --now httpd
+  AppAsg:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Condition: IsAsg
+    Properties:
+      MinSize: '2'
+      MaxSize: '4'
+      DesiredCapacity: '2'
+      VPCZoneIdentifier:
+        - !ImportValue { 'Fn::Sub': '${EnvName}-PrivateSubnetAId' }
+        - !ImportValue { 'Fn::Sub': '${EnvName}-PrivateSubnetBId' }
+      LaunchTemplate:
+        LaunchTemplateId: !Ref AppLaunchTemplate
+        Version: !GetAtt AppLaunchTemplate.LatestVersionNumber
+      Tags:
+        - { Key: Name, Value: !Sub '${EnvName}-app', PropagateAtLaunch: true }
+Outputs:
+  SecurityGroupId:
+    Value: !Ref AppSg
+  AppEndpoint:
+    Condition: IsSingle
+    Value: !GetAtt AppInstance.PublicDnsName
+    Description: Public DNS of the single instance (dev).
+  AutoScalingGroupName:
+    Condition: IsAsg
+    Value: !Ref AppAsg
+    Description: Name of the Auto Scaling group (test).

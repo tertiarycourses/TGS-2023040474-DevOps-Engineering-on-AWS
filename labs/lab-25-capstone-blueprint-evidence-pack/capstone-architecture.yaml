@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Lab 25 (Capstone) - top-level template that documents/nests the stacks built across
+  Domains 1-6 into ONE secured, resilient, observable delivery system for the sample app.
+  Upload the child templates to an S3 bucket and set the *TemplateUrl parameters, or use
+  this as documentation and 'aws cloudformation validate-template'.
+Parameters:
+  NetworkTemplateUrl:
+    Type: String
+    Description: S3 URL of the Domain 3 network stack (VPC, subnets, ALB)
+    Default: https://<templates-bucket>.s3.amazonaws.com/network.yaml
+  AppTemplateUrl:
+    Type: String
+    Description: S3 URL of the Domain 1/2 app + pipeline stack
+    Default: https://<templates-bucket>.s3.amazonaws.com/app.yaml
+  ResilienceTemplateUrl:
+    Type: String
+    Description: S3 URL of the Domain 3 HA stack (Auto Scaling + RDS)
+    Default: https://<templates-bucket>.s3.amazonaws.com/ha.yaml
+  MonitoringTemplateUrl:
+    Type: String
+    Description: S3 URL of the Domain 4 monitoring stack (dashboards, alarms)
+    Default: https://<templates-bucket>.s3.amazonaws.com/monitoring.yaml
+  ResponseTemplateUrl:
+    Type: String
+    Description: S3 URL of the Domain 5 incident-response stack (EventBridge, SNS, Lambda)
+    Default: https://<templates-bucket>.s3.amazonaws.com/response.yaml
+  SecurityTemplateUrl:
+    Type: String
+    Description: S3 URL of the Domain 6 security stack (KMS, CloudTrail, Config, Security Hub)
+    Default: https://<templates-bucket>.s3.amazonaws.com/security.yaml
+Resources:
+  NetworkStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref NetworkTemplateUrl
+  AppStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NetworkStack
+    Properties:
+      TemplateURL: !Ref AppTemplateUrl
+  ResilienceStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NetworkStack
+    Properties:
+      TemplateURL: !Ref ResilienceTemplateUrl
+  MonitoringStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: AppStack
+    Properties:
+      TemplateURL: !Ref MonitoringTemplateUrl
+  ResponseStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: MonitoringStack
+    Properties:
+      TemplateURL: !Ref ResponseTemplateUrl
+  SecurityStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref SecurityTemplateUrl
+Outputs:
+  SystemName:
+    Value: devops-capstone-integrated-delivery-system
+  Domains:
+    Value: 'D1 SDLC | D2 IaC | D3 Resilience | D4 Monitoring | D5 Response | D6 Security'

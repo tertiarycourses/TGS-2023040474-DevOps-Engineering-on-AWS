@@ -1,0 +1,5 @@
+{
+  "availabilityZone": "ap-southeast-1a",
+  "volumeType": "gp3",
+  "encrypted": "true"
+}

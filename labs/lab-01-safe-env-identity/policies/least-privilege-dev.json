@@ -1,0 +1,34 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadMostlyDevOps",
+      "Effect": "Allow",
+      "Action": [
+        "codebuild:BatchGet*",
+        "codebuild:List*",
+        "codepipeline:Get*",
+        "codepipeline:List*",
+        "codeconnections:Get*",
+        "codeconnections:List*",
+        "cloudformation:Describe*",
+        "cloudformation:List*",
+        "logs:Get*",
+        "logs:Describe*",
+        "logs:FilterLogEvents",
+        "s3:List*",
+        "s3:GetObject",
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ScopedArtifactWrite",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Resource": "arn:aws:s3:::devops-*-artifacts-*/*"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lab 24 - operational best-practices conformance pack (subset).
+Resources:
+  CloudTrailEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: cloudtrail-enabled
+      Source: { Owner: AWS, SourceIdentifier: CLOUD_TRAIL_ENABLED }
+  S3SseEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: s3-bucket-server-side-encryption-enabled
+      Source: { Owner: AWS, SourceIdentifier: S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED }
+  RestrictedSsh:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: restricted-ssh
+      Source: { Owner: AWS, SourceIdentifier: INCOMING_SSH_DISABLED }
+  RootMfaEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: root-account-mfa-enabled
+      Source: { Owner: AWS, SourceIdentifier: ROOT_ACCOUNT_MFA_ENABLED }

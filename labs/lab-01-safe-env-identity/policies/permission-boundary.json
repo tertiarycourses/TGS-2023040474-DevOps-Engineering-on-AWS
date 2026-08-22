@@ -1,0 +1,35 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowDevOpsServices",
+      "Effect": "Allow",
+      "Action": [
+        "codebuild:*",
+        "codepipeline:*",
+        "codeconnections:*",
+        "codedeploy:*",
+        "cloudformation:*",
+        "s3:*",
+        "logs:*",
+        "cloudwatch:*",
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyPrivilegeEscalation",
+      "Effect": "Deny",
+      "Action": [
+        "iam:CreateUser",
+        "iam:CreateAccessKey",
+        "iam:AttachUserPolicy",
+        "iam:PutUserPolicy",
+        "iam:DeleteUserPermissionsBoundary",
+        "organizations:*",
+        "account:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

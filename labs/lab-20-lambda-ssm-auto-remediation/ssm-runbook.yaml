@@ -1,0 +1,43 @@
+schemaVersion: '0.3'
+description: >-
+  Lab 20 - restart an unhealthy/stopped EC2 instance and wait until it is
+  running. Invoked by the devops-remediate Lambda.
+assumeRole: '{{ AutomationAssumeRole }}'
+parameters:
+  InstanceId:
+    type: String
+    description: The EC2 instance to restart.
+  AutomationAssumeRole:
+    type: String
+    default: ''
+    description: (Optional) role the automation assumes.
+mainSteps:
+  - name: StartInstance
+    action: aws:executeAwsApi
+    inputs:
+      Service: ec2
+      Api: StartInstances
+      InstanceIds:
+        - '{{ InstanceId }}'
+  - name: WaitUntilRunning
+    action: aws:waitForAwsResourceProperty
+    timeoutSeconds: 300
+    inputs:
+      Service: ec2
+      Api: DescribeInstances
+      InstanceIds:
+        - '{{ InstanceId }}'
+      PropertySelector: '$.Reservations[0].Instances[0].State.Name'
+      DesiredValues:
+        - running
+  - name: ReportHealthy
+    action: aws:executeAwsApi
+    inputs:
+      Service: ec2
+      Api: DescribeInstanceStatus
+      InstanceIds:
+        - '{{ InstanceId }}'
+    outputs:
+      - Name: InstanceStatus
+        Selector: '$.InstanceStatuses[0].InstanceState.Name'
+        Type: String

@@ -1,0 +1,20 @@
+{
+  "widgets": [
+    { "type": "metric", "x": 0, "y": 0, "width": 12, "height": 6,
+      "properties": { "title": "CPU utilisation",
+        "metrics": [["AWS/EC2", "CPUUtilization", { "stat": "Average" }]],
+        "period": 300, "region": "ap-southeast-1", "view": "timeSeries" } },
+    { "type": "metric", "x": 12, "y": 0, "width": 12, "height": 6,
+      "properties": { "title": "App latency (p90)",
+        "metrics": [["DevOps/App", "LatencyMs", { "stat": "p90" }]],
+        "period": 60, "region": "ap-southeast-1", "view": "timeSeries" } },
+    { "type": "metric", "x": 0, "y": 6, "width": 12, "height": 6,
+      "properties": { "title": "Error count",
+        "metrics": [["DevOps/App", "AppErrorCount", { "stat": "Sum" }]],
+        "period": 60, "region": "ap-southeast-1", "view": "timeSeries" } },
+    { "type": "metric", "x": 12, "y": 6, "width": 12, "height": 6,
+      "properties": { "title": "Request count",
+        "metrics": [["DevOps/App", "RequestCount", { "stat": "Sum" }]],
+        "period": 60, "region": "ap-southeast-1", "view": "timeSeries" } }
+  ]
+}

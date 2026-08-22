@@ -1,0 +1,13 @@
+{
+  "logGroupName": "/devops/app",
+  "filterName": "app-error-count",
+  "filterPattern": "ERROR",
+  "metricTransformations": [
+    {
+      "metricName": "AppErrorCount",
+      "metricNamespace": "DevOps/App",
+      "metricValue": "1",
+      "defaultValue": 0
+    }
+  ]
+}

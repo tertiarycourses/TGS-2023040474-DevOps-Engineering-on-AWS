@@ -1,0 +1,31 @@
+version: 0.2
+# Lab 4 - extend the build to PACKAGE a versioned artifact and upload it.
+env:
+  variables:
+    APP_NAME: "devops-sample-app"
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - pip install -r requirements.txt
+  pre_build:
+    commands:
+      - python -m pyflakes app tests
+      - python -m pytest -q
+  build:
+    commands:
+      - SEMVER=$(python -c "from app.version import VERSION; print(VERSION)")
+      - SHA=${CODEBUILD_RESOLVED_SOURCE_VERSION:0:7}
+      - export ARTIFACT="${APP_NAME}-${SEMVER}-${SHA}.zip"
+      - echo "Packaging ${ARTIFACT}"
+      - mkdir -p dist
+      - zip -r "dist/${ARTIFACT}" app -x '*/__pycache__/*'
+      - cp "dist/${ARTIFACT}" dist/app.zip     # stable key; S3 versioning keeps history
+  post_build:
+    commands:
+      - echo "Built ${ARTIFACT}"
+artifacts:
+  files:
+    - dist/app.zip
+  name: app-artifact

@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lab 20 - EventBridge -> least-privilege Lambda -> SSM Automation auto-remediation + SNS notify.
+
+Parameters:
+  LambdaBucket:
+    Type: String
+    Description: S3 bucket holding remediate.zip
+  RunbookName:
+    Type: String
+    Default: devops-restart-instance
+    Description: Name of the SSM Automation document to invoke
+
+Resources:
+  IncidentTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: devops-incidents
+
+  RemediateRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: devops-remediate-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: devops-remediate-inline
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: WriteOwnLogs
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/devops-remediate:*'
+              - Sid: StartRemediationRunbook
+                Effect: Allow
+                Action: ssm:StartAutomationExecution
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:automation-definition/${RunbookName}:*'
+              - Sid: RestartTaggedInstances
+                Effect: Allow
+                Action:
+                  - ec2:StartInstances
+                  - ec2:DescribeInstances
+                Resource: '*'
+                Condition:
+                  StringEquals:
+                    aws:ResourceTag/devops:remediate: 'true'
+              - Sid: NotifyTeam
+                Effect: Allow
+                Action: sns:Publish
+                Resource: !Ref IncidentTopic
+
+  RemediateFn:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: devops-remediate
+      Runtime: python3.12
+      Handler: remediate.handler
+      Timeout: 60
+      Role: !GetAtt RemediateRole.Arn
+      Code:
+        S3Bucket: !Ref LambdaBucket
+        S3Key: remediate.zip
+      Environment:
+        Variables:
+          RUNBOOK_NAME: !Ref RunbookName
+          TOPIC_ARN: !Ref IncidentTopic
+
+  RemediateRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: devops-remediate
+      Description: Invoke auto-remediation on an unhealthy/stopped EC2 instance
+      State: ENABLED
+      EventPattern:
+        source: [ "aws.ec2" ]
+        detail-type: [ "EC2 Instance State-change Notification" ]
+        detail:
+          state: [ "stopped", "stopping" ]
+      Targets:
+        - Arn: !GetAtt RemediateFn.Arn
+          Id: remediate
+
+  AllowEventBridgeInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref RemediateFn
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt RemediateRule.Arn
+
+Outputs:
+  TopicArn:
+    Value: !Ref IncidentTopic
+  FunctionArn:
+    Value: !GetAtt RemediateFn.Arn

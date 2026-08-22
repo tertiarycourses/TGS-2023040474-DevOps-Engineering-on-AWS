@@ -1,0 +1,5 @@
+[
+  { "ParameterKey": "EnvName",      "ParameterValue": "dev" },
+  { "ParameterKey": "InstanceSize", "ParameterValue": "small" },
+  { "ParameterKey": "DeployMode",   "ParameterValue": "single" }
+]

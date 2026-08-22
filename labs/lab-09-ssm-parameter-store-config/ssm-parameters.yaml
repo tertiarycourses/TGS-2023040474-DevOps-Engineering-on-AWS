@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Lab 9 - manage application configuration as IaC in SSM Parameter Store.
+  Demonstrates String parameters created and versioned by CloudFormation.
+Parameters:
+  EnvName:
+    Type: String
+    Default: dev
+    Description: Environment segment of the parameter path.
+Resources:
+  MaxConnections:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '/devops/app/${EnvName}/max-connections'
+      Type: String
+      Value: '100'
+      Tier: Standard
+      Description: Max DB connections for the app pool.
+      Tags: { Project: devops-course, Lab: '09' }
+  Timeout:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '/devops/app/${EnvName}/timeout-seconds'
+      Type: String
+      Value: '30'
+      Tier: Standard
+      Description: Request timeout in seconds.
+      Tags: { Project: devops-course, Lab: '09' }
+Outputs:
+  MaxConnectionsName: { Value: !Ref MaxConnections }
+  TimeoutName:        { Value: !Ref Timeout }
