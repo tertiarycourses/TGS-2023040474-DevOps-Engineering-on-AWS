@@ -1,6 +1,6 @@
 # DevOps Engineering on AWS — Learner Guide
 
-**WSQ Course Code:** TGS-2023040474  |  **Conducted by:** Tertiary Infotech Academy Pte Ltd (UEN 201200696W)  |  **Version v12 · 23 August 2026**
+**WSQ Course Code:** TGS-2023040474  |  **Conducted by:** Tertiary Infotech Academy Pte Ltd (UEN 201200696W)  |  **Version v14 · 23 August 2026**
 
 ## Document Version Control Record
 
@@ -12,6 +12,8 @@
 | 10 | 23 August 2026 | Redesigned to exactly 25 self-contained hands-on labs — 5 labs per day across the 5 training days (Day 1 Foundations & SDLC Automation, Labs 1–5; Day 2 Configuration Management & IaC, Labs 6–10; Day 3 Resilient Cloud Solutions, Labs 11–15; Day 4 Monitoring, Logging & Incident Response, Labs 16–20; Day 5 Security, Compliance & Capstone, Labs 21–25). Each lab has 12–16 explicit steps, a unique reference architecture, editable AWS-native source files, a .env.example (placeholders only) and a 4–6 page INSTRUCTIONS.pdf. All 25 labs mapped across LO1–LO6, K1–K7, A1–A6 and the six official domains; Lab 25 is an integrated capstone technical blueprint and evidence pack. Aligned to the v10 concept-led slide deck. | Dr Alfred Ang |
 | 11 | 23 August 2026 | Corrected assessment timing to match the approved Assessment Plan (v5.0): Written Assessment (SAQ) 1 hour + Practical Performance (PP) 2 hours = 3 assessment hours (the PP duration and the assessment total were previously understated). Course delivery re-stated as 40 total hours = 37 instructional + 3 assessment (Days 1–4: 8 instructional hours each; Day 5: 5 instructional hours plus the 3-hour assessment). All 25 labs (5 per day), content and reference architectures unchanged. | Dr Alfred Ang |
 | 12 | 23 August 2026 | Final-QA corrective release. Body text set to Arial 11pt minimum throughout (step text, captions, expected-output and code listings no longer use sub-11pt overrides); the Table of Contents is a live Word TOC field with visible entries and page numbers. Daily timing aligned to the approved schedule (9:30am–6:00pm, 30-minute lunch; tea breaks within training time). Aligned to the v12 slide deck. All 25 labs (5 per day), detailed step-by-step procedures, content and reference architectures unchanged. | Dr Alfred Ang |
+| 13 | 23 August 2026 | Aligned to the expanded 589-slide v13 trainer deck, which blends the current courseware with vetted legacy and related AWS DevOps certification coverage. Detailed click-by-click procedures remain in this Learner Guide and the individual lab folders rather than the PPT. The practical structure remains 25 self-contained labs — exactly five labs per day — with unchanged K1–K7, A1–A6 and LO1–LO6 mappings. No practice exam was added. | Dr Alfred Ang |
+| 14 | 23 August 2026 | Expanded the visual trainer deck beyond 600 slides by adding 40 vetted AWS DevOps architecture-map analyses from the related certification course. Aligned to the 629-slide v14 deck; detailed procedures remain in this Learner Guide and the 25 individual lab folders. No practice exam was added. | Dr Alfred Ang |
 
 ## Contents
 
