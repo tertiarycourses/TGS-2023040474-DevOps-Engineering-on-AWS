@@ -7,7 +7,7 @@ Build practical skills for automating, operating, securing, and recovering workl
 | Course code | `TGS-2023040474` |
 | Programme | WSQ |
 | Duration | 5 days / 40 hours |
-| Current courseware | v14 (23 August 2026) · 629-slide trainer deck |
+| Current courseware | v14 (23 August 2026) · 630-slide trainer deck |
 | Registration | [View course details and register](https://www.tertiarycourses.com.sg/wsq-devops-engineering-on-aws.html) |
 | Funding | Up to 70% course-fee funding may be available. Eligibility, validity dates, and other terms apply; check the registration page for current details. |
 
@@ -81,7 +81,7 @@ Each lab folder contains detailed instructions, an `INSTRUCTIONS.pdf` mirror, ed
 
 ## Public courseware package
 
-- 629-slide visual trainer deck in PPTX and PDF formats
+- 630-slide visual trainer deck in PPTX and PDF formats
 - Learner Guide in DOCX, PDF, and Markdown formats
 - Lesson Plan in DOCX and PDF formats
 - Twenty-five self-contained lab folders with editable working files and JPEG visuals
